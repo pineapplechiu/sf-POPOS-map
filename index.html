@@ -1,0 +1,106 @@
+<html>
+<head>
+  <meta charset=utf-8 />
+  <title>Leaflet with Socrata</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+  <link rel='stylesheet' href='https://unpkg.com/leaflet@1.0.2/dist/leaflet.css' />
+  <script src='https://unpkg.com/leaflet@1.0.2/dist/leaflet-src.js'></script>
+
+  <script src='https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js'></script>
+
+  <script type='text/javascript' src='config.js'></script>
+
+  <style>
+  body { margin:0; padding:0; }
+  #map { position: absolute; top:0; bottom:0; right:0; left:0; }
+  </style>
+</head>
+<body>
+
+  <div id='map'></div>
+
+  <script>
+
+  var app_token = config.APP_TOKEN;
+
+  // set the map center and zoom level
+  var map = L.map('map').setView([37.7974, -122.3962], 14);
+
+  // add link to view code on GitHub
+  map.attributionControl
+  .setPrefix('View <a href="https://dev.socrata.com/publishers/">code on GitHub</a> with <a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>');
+
+  // add legend control layers - global variable with (null, null) allows indiv basemaps and overlays to be added inside functions below
+  var controlLayers = L.control.layers( null, null, {
+    position: 'topright',
+    collapsed: true // false = open by default
+  }).addTo(map);
+
+  /* BASELAYERS */
+
+  var lightStreets = new L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+  }).addTo(map);
+  controlLayers.addBaseLayer(lightStreets, 'Light Streets (Carto)');
+
+  /* OVERLAYS */
+
+  $.getJSON('https://data.sfgov.org/resource/3ub7-d4yy.geojson', function (data){
+    var geoJsonLayer = L.geoJson(data, {
+      pointToLayer: function( feature, latlng) {
+        var circle = L.circleMarker(latlng, {
+          radius: 6,
+          fillColor: '#BDD3DE',
+          color: '#BDD3DE',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.7
+        });
+        circle.bindPopup(feature.properties.name + '<br>' + feature.properties.accessibil + '<br>' + feature.properties.hours_type); 
+        return circle;
+      }
+    }).addTo(map); 
+    controlLayers.addOverlay(geoJsonLayer, 'ALL POPOS (Open Data)');
+  });
+
+  $.getJSON('https://data.sfgov.org/resource/3ub7-d4yy.geojson?art=%27Yes%27', function (data){
+    var geoJsonLayer = L.geoJson(data, {
+      pointToLayer: function( feature, latlng) {
+        var circle = L.circleMarker(latlng, {
+          radius: 6,
+          fillColor: '#3F5866',
+          color: '#3F5866',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.7
+        });
+        circle.bindPopup(feature.properties.name + '<br>' + feature.properties.accessibil + '<br>' + feature.properties.hours_type); 
+        return circle;
+      }
+    })
+    controlLayers.addOverlay(geoJsonLayer, 'w/ART');
+  });
+
+  $.getJSON('https://data.sfgov.org/resource/3ub7-d4yy.geojson?restrooms=%27Yes%27' + app_token, function (data){
+    var geoJsonLayer = L.geoJson(data, {
+      pointToLayer: function( feature, latlng) {
+        var circle = L.circleMarker(latlng, {
+          radius: 6,
+          fillColor: '#FF8F00',
+          color: '#FF8F00',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.7
+        });
+        circle.bindPopup(feature.properties.name + '<br>' + feature.properties.accessibil + '<br>' + feature.properties.hours_type); 
+        return circle;
+      }
+    })
+    controlLayers.addOverlay(geoJsonLayer, 'w/RESTROOMS');
+  });
+
+  </script>
+
+</body>
+</html>
