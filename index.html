@@ -9,7 +9,7 @@
 
   <script src='https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js'></script>
 
-  <script type='text/javascript' src='config.js'></script>
+  <!-- <script type='text/javascript' src='config.js'></script> -->
 
   <style>
   body { margin:0; padding:0; }
@@ -80,7 +80,7 @@
     controlLayers.addOverlay(geoJsonLayer, 'w/ART');
   });
 
-  $.getJSON('https://data.sfgov.org/resource/3ub7-d4yy.geojson?restrooms=%27Yes%27' + app_token, function (data){
+  $.getJSON('https://data.sfgov.org/resource/3ub7-d4yy.geojson?restrooms=%27Yes%27', function (data){
     var geoJsonLayer = L.geoJson(data, {
       pointToLayer: function( feature, latlng) {
         var circle = L.circleMarker(latlng, {
